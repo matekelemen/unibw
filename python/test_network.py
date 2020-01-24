@@ -11,7 +11,9 @@ from matplotlib import pyplot as plt
 import tensorflow as tf
 
 # --- Internal Imports ---
-from unibw import R2, loadCSVToDict
+from unibw import R2
+from unibw import loadCSVData, partitionDataSets
+from unibw import normalizeData, deNormalizeData
 
 # ---------------------------------------------------
 # Data settings
@@ -20,95 +22,55 @@ featureNames    = [ "W",
                     "L/D",
                     "theta",
                     "R"]
-targetNames     = [ "iso",
+labelNames      = [ "iso",
                     "pso" ]
-testFraction    = 0.2
-printTestSet    = False
-showPlots       = True
+trainRatio      = 0.8
+printTestSet    = True
+showPlots       = False
 
 # Model settings
-numberOfNodes   = [ 70 for i in range(10) ]
+numberOfNodes   = [ 36 for i in range(15) ]
 
 # Optimization settings
 numberOfEpochs  = 150
+optimizer       = 'adam'
 
 # ---------------------------------------------------
 # Load data
-data    = loadCSVToDict( filename )
+features, labels    = loadCSVData(filename, featureNames, labelNames )
 
 # ---------------------------------------------------
-# Model division
-numberOfRecords = len(data[featureNames[0]])
-indices         = [index for index in range(numberOfRecords)]
-random.shuffle(indices)
-
-
 # Normalize data
-featureCoefficients = [np.max(np.abs(data[featureName])) for featureName in featureNames]
-targetCoefficients  = [np.max(np.abs(data[featureName])) for featureName in targetNames]
+featureCoefficients = [np.max(np.abs(feature)) for feature in features]
+labelCoefficients   = [np.max(np.abs(label)) for label in labels]
 
-def normalizeData(inputData, norm):
-    for index in range(len( inputData )):
-        inputData[index] /= (2*norm)
-        inputData[index] += 0.5
-    return inputData
-
-def deNormalizeData(inputData, norm):
-    for index in range(len( inputData )):
-        inputData[index] -= 0.5
-        inputData[index] *= norm
-    return inputData
-    
-
-for name, coefficient in zip(featureNames, featureCoefficients):
-    data[name] = normalizeData(data[name], coefficient)
-
-for name, coefficient in zip(targetNames, targetCoefficients):
-    data[name] = normalizeData(data[name], coefficient)
-
-
-trainSetX = [ 
-                [ data[featureName][index] for featureName in featureNames ]
-                for index in indices[0:int((1-testFraction)*numberOfRecords)]
-            ]
-trainSetY = [ 
-                [ data[name][index] for name in targetNames ]
-                for index in indices[0:int((1-testFraction)*numberOfRecords)]
-            ]
-testSetX =  [ 
-                [ data[featureName][index] for featureName in featureNames ]
-                for index in indices[0:int(testFraction*numberOfRecords)]
-            ]
-testSetY =  [ 
-                [ data[name][index] for name in targetNames ]
-                for index in indices[0:int(testFraction*numberOfRecords)]
-            ]
-
+features    = normalizeData( features, featureCoefficients )
+labels      = normalizeData( labels, labelCoefficients )
 
 # Check data validity
 def validData(lst):
     valid = True
     if np.any(np.isnan(lst)):
         valid = False
-        print("Nan in input data!")
+        raise ValueError("Nan in input data!")
     if np.max(np.abs( lst )) > 1.0:
         valid = False
-        print("Data out of bounds (>1.0)")
+        raise ValueError("Data out of bounds (>1.0)")
     if np.min( lst ) < 0.0:
         valid = False
-        print("Data out of bounds (<0.0)")
+        raise ValueError("Data out of bounds (<0.0)")
 
     return valid
 
 
-validData(trainSetX)
-validData(trainSetY)
-validData(testSetX)
-validData(testSetY)
+validData(features)
+validData(labels)
 
+# Divide data
+trainFeatures, trainLabels, testFeatures, testLabels    = partitionDataSets( features, labels, trainRatio=trainRatio )
 
 # Release data memory
-del data
+del features, labels
 
 # ---------------------------------------------------
 # Build model
@@ -116,10 +78,10 @@ model   = tf.keras.models.Sequential()
 model.add( tf.keras.layers.InputLayer( input_shape=(len(featureNames)) ) )
 for num in numberOfNodes:
     model.add( tf.keras.layers.Dense(num, activation='relu') )
-model.add( tf.keras.layers.Dense(len(targetNames)) )
+model.add( tf.keras.layers.Dense(len(labelNames)) )
 
 # Set optimizer
-model.compile(  optimizer='adam',
+model.compile(  optimizer=optimizer,
                 loss='mse',
                 metrics=['mse','mae'])
 
@@ -127,11 +89,11 @@ model.compile(  optimizer='adam',
 model.summary()
 
 # Train network
-model.fit(trainSetX, trainSetY, epochs=numberOfEpochs)
+model.fit(trainFeatures, trainLabels, epochs=numberOfEpochs)
 
 # Evaluate network
 print("\nEVALUATION")
-model.evaluate(testSetX,  testSetY, verbose=2)
+model.evaluate(testFeatures,  testLabels, verbose=2)
 print("\n")
 
 # ---------------------------------------------------
@@ -141,28 +103,17 @@ modelPath   = modelPath[0:-modelPath[::-1].index("/")]
 model.save(os.path.realpath( modelPath + "/../models/test_network.h5" ))
 
 # Predict
-vSetX       = testSetX
-vSetY       = testSetY
-y           = model.predict(vSetX)
+y               = np.asarray( model.predict(testFeatures) )
 
 # De-normalize
-for setIndex in range(len(vSetX)):
-    for componentIndex, coefficient in enumerate(featureCoefficients):
-        vSetX[setIndex][componentIndex] -= 0.5
-        vSetX[setIndex][componentIndex] *= coefficient
-
-for setIndex in range(len(vSetY)):
-    for componentIndex, coefficient in enumerate(targetCoefficients):
-        vSetY[setIndex][componentIndex] -= 0.5
-        vSetY[setIndex][componentIndex] *= coefficient
-
-        y[setIndex][componentIndex]     -= 0.5
-        y[setIndex][componentIndex]     *= coefficient
+testFeatures    = deNormalizeData( testFeatures, featureCoefficients, exampleAxis=0 )
+testLabels      = deNormalizeData( testLabels, labelCoefficients, exampleAxis=0 )
+y               = deNormalizeData( y, labelCoefficients, exampleAxis=0 )
 
 # Print predictions
 if printTestSet:
     print("MODEL PREDICTIONS")
-    for X, Y, pY in zip(vSetX, vSetY, y):
+    for X, Y, pY in zip(testFeatures, testLabels, y):
         stringFormat = "%.4f"
 
         string = "["
@@ -194,12 +145,12 @@ if printTestSet:
         print( string )
 
 # Compute R2
-print( "R2:\t" + str( R2(vSetY, y) ) + "\n" )
+print( "R2:\t" + str( R2(testLabels, y) ) + "\n" )
 
 if showPlots:
-    for targetIndex in range(len(targetNames)):
+    for targetIndex in range(len(labelNames)):
         for featureIndex in range(len(featureNames)):
-            plt.subplot( len(featureNames), len(targetNames), targetIndex*len(featureNames) + featureIndex + 1 )
-            plt.plot( [ vSetX[index][featureIndex] for index in range(len(vSetX)) ] , [vSetY[index][targetIndex] for index in range(len(vSetY))], 'b+' )
-            plt.plot( [ vSetX[index][featureIndex] for index in range(len(vSetX)) ], [y[index][targetIndex] for index in range(len(y))], 'r.' )
+            plt.subplot( len(featureNames), len(labelNames), targetIndex*len(featureNames) + featureIndex + 1 )
+            plt.plot( [ testFeatures[index][featureIndex] for index in range(len(testFeatures)) ] , [testLabels[index][targetIndex] for index in range(len(testLabels))], 'b+' )
+            plt.plot( [ testFeatures[index][featureIndex] for index in range(len(testFeatures)) ], [y[index][targetIndex] for index in range(len(y))], 'r.' )
 plt.show()

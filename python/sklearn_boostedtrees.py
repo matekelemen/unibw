@@ -5,7 +5,7 @@ import numpy as np
 import os
 
 # --- Sklearn Impports ---
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor
 
 # --- Internal Imports ---
 from unibw import R2
@@ -20,7 +20,7 @@ featureNames        = [ "W",
 labelName           = "iso"
 trainRatio          = 0.8
 
-printPredictions    = True
+printPredictions    = False
 
 # ---------------------------------------------------
 # Load and divide data
@@ -32,10 +32,11 @@ del labels
 
 # ---------------------------------------------------
 # Create and train model
-model   = RandomForestRegressor(    max_depth=10, 
-                                    n_estimators=100,
-                                    criterion='friedman_mse',
-                                    verbose=False)
+model   = GradientBoostingRegressor(    max_depth=5, 
+                                        random_state=0,
+                                        n_estimators=500,
+                                        criterion='friedman_mse',
+                                        verbose=False)
 model.fit(trainFeatures,trainLabels)
 
 # ---------------------------------------------------
@@ -53,7 +54,7 @@ print( "R2:\t" + str(r2) )
 # Save model (if it's good enough)
 import pickle
 # Check accuracy of the currently saved tree
-fileName        = "../models/random_forest_" + labelName + ".bin"
+fileName        = "../models/boosted_trees_" + labelName + ".bin"
 file            = None
 writeToFile     = False
 try:
@@ -73,7 +74,7 @@ if file is not None:
     rSquaredOld = R2(y, pYOld)
     rSquaredNew = R2(y, pYNew)
     if rSquaredNew > rSquaredOld:
-        print( "Old random forest with an R2 value of " + str(rSquaredOld) + " has been replaced with a new one (R2=" + str(rSquaredNew) + ")" )
+        print( "Old boosted tree with an R2 value of " + str(rSquaredOld) + " has been replaced with a new one (R2=" + str(rSquaredNew) + ")" )
         writeToFile = True
     else:
         print( "Old tree prevails (R2=" + str(rSquaredOld) + ")" )

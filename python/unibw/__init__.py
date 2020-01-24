@@ -1,4 +1,5 @@
 from .metrics import R2, testR2
-from .dataimport import loadCSVToDict, partitionDataSets
+from .dataimport import loadCSVToDict, loadCSVData, partitionDataSets
+from .normalization import normalizeData, deNormalizeData
 
 testR2()

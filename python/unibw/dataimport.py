@@ -48,6 +48,29 @@ def loadCSVToDict(fileName):
     return data
 
 
+def loadCSVData( fileName, featureNames, labelNames ):
+    '''
+    Argument types:
+        - fileName      : string
+        - featureNames  : list of strings (N)
+        - labelNames    : list of strings (P)
+
+    Return types:
+        - features      : numpy.ndarray (NxM)
+        - labels        : numpy.ndarray (PxN)
+    '''
+    # Read and divide data
+    data        = loadCSVToDict(fileName)
+    features    = [ data[name] for name in featureNames ]
+    labels      = [ data[name] for name in labelNames ]
+
+    # Convert to ndarrays
+    features    = np.asarray( features )
+    labels      = np.asarray( labels )
+
+    return features, labels
+
+
 def partitionDataSets( features, labels, trainRatio=0.8 ):
     '''
     Argument types:
@@ -56,10 +79,10 @@ def partitionDataSets( features, labels, trainRatio=0.8 ):
         - trainRatio    : float
 
     Return types:
-        - trainFeatures : numpy.ndarray (NxM1)
-        - trainLabels   : numpy.ndarray (PxM1)
-        - testFeatures  : numpy.ndarray (NxM2)
-        - testLabels    : numpy.ndarray (PxM2)
+        - trainFeatures : numpy.ndarray (M1xN)
+        - trainLabels   : numpy.ndarray (M1xP)
+        - testFeatures  : numpy.ndarray (M2xN)
+        - testLabels    : numpy.ndarray (M2xP)
 
     Randomly partitions the input data (features and labels) into a training set and a test set.
     The number of training examples will be floor(trainRatio * M), the rest will be in the test set.
@@ -69,21 +92,22 @@ def partitionDataSets( features, labels, trainRatio=0.8 ):
     singleLabel         = False
 
     shape               = features.shape
-    if len(shape) is 1:
-        features = np.asarray( [features] )
+    if len(shape) is 1 or shape[0] is 1 or shape[1] is 1:
+        features = np.asarray( [np.ravel(features)] )
         singleFeature = True
+
     shape               = labels.shape
-    if len(shape) is 1:
-        labels = np.asarray( [labels] )
+    if len(shape) is 1 or shape[0] is 1 or shape[1] is 1:
+        labels = np.asarray( [np.ravel(labels)] )
         singleLabel = True
 
     # Create shuffled index array
     numberOfExamples    = len(features[0])
-    indices             = [index for index in range(len( numberOfExamples ))]
+    indices             = [index for index in range( numberOfExamples )]
     random.shuffle(indices)
 
     # Partition indices
-    boundaryIndex       = np.floor( numberOfExamples * trainRatio )
+    boundaryIndex       = int(np.floor( numberOfExamples * trainRatio ))
     trainIndices        = indices[:boundaryIndex]
     testIndices         = indices[boundaryIndex:]
 
@@ -101,12 +125,18 @@ def partitionDataSets( features, labels, trainRatio=0.8 ):
 
     # Restore single classes if necessary
     if singleFeature:
-        trainFeatures   = trainFeatures[0]
-        testFeatures    = testFeatures[0]
+        trainFeatures   = np.ravel(trainFeatures)
+        testFeatures    = np.ravel(testFeatures)
+    else:
+        trainFeatures   = np.transpose( trainFeatures, (1,0) )
+        testFeatures    = np.transpose( testFeatures, (1,0) )
     
     if singleLabel:
-        trainLabels     = trainLabels[0]
-        testLabels      = testLabels[0]
+        trainLabels     = np.ravel(trainLabels)
+        testLabels      = np.ravel(testLabels)
+    else:
+        trainLabels     = np.transpose( trainLabels, (1,0) )
+        testLabels      = np.transpose( testLabels, (1,0) )
 
     # Return data
     return trainFeatures, trainLabels, testFeatures, testLabels
