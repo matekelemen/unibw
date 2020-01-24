@@ -1,0 +1,14 @@
+# Exclude data
+python/csvdata/*
+
+# Exclude saved models
+models/*
+
+# Exclude precomplied python files
+__pycache__
+
+# Exclude virtual environment
+venv
+
+# Exclude IDE files
+.vscode
