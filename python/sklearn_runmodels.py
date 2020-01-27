@@ -16,7 +16,7 @@ featureNames        = [ "W",
                         "L/D",
                         "theta",
                         "R"]
-labelName           = "iso"
+labelName           = "pso"
 
 # Data partitioning
 trainRatio          = 0.8
@@ -27,7 +27,7 @@ saveModels          = True
 printPredictions    = False
 
 # Number of runs per model
-numberOfRuns        = 5
+numberOfRuns        = 100
 
 # ---------------------------------------------------
 # Set up models and their arguments
@@ -82,7 +82,7 @@ models["KernelRidge"]   = {
     "modelArguments"    : { "kernel"    : "linear",
                             "degree"    : 3,
                             "alpha"     : 1.0,
-                            "coef0"     : 1  },
+                            "coef0"     : None  },
     "inputFileName"     : fileName,
     "featureNames"      : featureNames,
     "labelName"         : labelName,

@@ -14,7 +14,7 @@ featureNames        = [ "W",
                         "L/D",
                         "theta",
                         "R"]
-labelName           = "iso"
+labelName           = "pso"
 
 # ---------------------------------------------------
 # Load and divide data
@@ -32,7 +32,8 @@ nameCriterion   = "_" + labelName + ".bin"
 modelNames = [ fileName for fileName in os.listdir(modelPath) if os.path.isfile(os.path.join(modelPath,fileName)) and labelName in fileName ]
 
 # ---------------------------------------------------
-print("Model Name\t\tR2")
+print("\nModel Name\t\tR2 (entire set)")
+print("---------------------------------------")
 # Loop through models and evaluate them
 for name in modelNames:
     path    = os.path.join( modelPath, name )
@@ -47,4 +48,6 @@ for name in modelNames:
     if len(name) - len(nameCriterion) < 8:
         separator += "\t"
 
-    print( name[:-len(nameCriterion)] + separator + str(r2) )
+    print( name[:-len(nameCriterion)] + separator + "%.3f" % r2 )
+
+print("\n")
