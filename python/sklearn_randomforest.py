@@ -4,7 +4,7 @@ import random
 import numpy as np
 import os
 
-# --- Sklearn Impports ---
+# --- Sklearn Imports ---
 from sklearn.ensemble import RandomForestRegressor
 
 # --- Internal Imports ---
@@ -20,7 +20,7 @@ featureNames        = [ "W",
 labelName           = "iso"
 trainRatio          = 0.8
 
-printPredictions    = True
+printPredictions    = False
 
 # ---------------------------------------------------
 # Load and divide data
@@ -32,9 +32,12 @@ del labels
 
 # ---------------------------------------------------
 # Create and train model
-model   = RandomForestRegressor(    max_depth=10, 
+model   = RandomForestRegressor(    max_depth=None, 
                                     n_estimators=100,
-                                    criterion='friedman_mse',
+                                    criterion='mse',
+                                    min_samples_split=2,
+                                    min_samples_leaf=1,
+                                    max_features="auto",
                                     verbose=False)
 model.fit(trainFeatures,trainLabels)
 

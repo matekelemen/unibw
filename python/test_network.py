@@ -26,10 +26,10 @@ labelNames      = [ "iso",
                     "pso" ]
 trainRatio      = 0.8
 printTestSet    = True
-showPlots       = False
+showPlots       = True
 
 # Model settings
-numberOfNodes   = [ 36 for i in range(15) ]
+numberOfNodes   = [ 72 for i in range(10) ]
 
 # Optimization settings
 numberOfEpochs  = 150

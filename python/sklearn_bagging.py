@@ -4,7 +4,7 @@ import random
 import numpy as np
 import os
 
-# --- Sklearn Impports ---
+# --- Sklearn Imports ---
 from sklearn.ensemble import BaggingRegressor
 
 # --- Internal Imports ---
@@ -33,6 +33,7 @@ del labels
 # ---------------------------------------------------
 # Create and train model
 model   = BaggingRegressor( n_estimators=100,
+                            base_estimator=None,
                             verbose=False)
 model.fit(trainFeatures,trainLabels)
 

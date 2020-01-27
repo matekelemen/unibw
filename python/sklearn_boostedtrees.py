@@ -4,7 +4,7 @@ import random
 import numpy as np
 import os
 
-# --- Sklearn Impports ---
+# --- Sklearn Imports ---
 from sklearn.ensemble import GradientBoostingRegressor
 
 # --- Internal Imports ---
@@ -32,9 +32,10 @@ del labels
 
 # ---------------------------------------------------
 # Create and train model
-model   = GradientBoostingRegressor(    max_depth=5, 
-                                        random_state=0,
-                                        n_estimators=500,
+model   = GradientBoostingRegressor(    max_depth=3,
+                                        loss="ls",
+                                        subsample=1.0,
+                                        n_estimators=100,
                                         criterion='friedman_mse',
                                         verbose=False)
 model.fit(trainFeatures,trainLabels)

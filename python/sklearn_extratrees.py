@@ -4,7 +4,7 @@ import random
 import numpy as np
 import os
 
-# --- Sklearn Impports ---
+# --- Sklearn Imports ---
 from sklearn.ensemble import ExtraTreesRegressor
 
 # --- Internal Imports ---

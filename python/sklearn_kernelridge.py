@@ -5,8 +5,7 @@ import numpy as np
 import os
 
 # --- Sklearn Imports ---
-from sklearn.ensemble import AdaBoostRegressor
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.kernel_ridge import KernelRidge
 
 # --- Internal Imports ---
 from unibw import R2
@@ -33,9 +32,10 @@ del labels
 
 # ---------------------------------------------------
 # Create and train model
-model   = AdaBoostRegressor(    base_estimator=DecisionTreeRegressor(   max_depth=5 ),
-                                n_estimators=500,
-                                loss="square")
+model   = KernelRidge(  alpha=0.001,
+                        kernel="linear",
+                        degree=3,
+                        coef0=1  )
 model.fit(trainFeatures,trainLabels)
 
 # ---------------------------------------------------
@@ -53,7 +53,7 @@ print( "R2:\t" + str(r2) )
 # Save model (if it's good enough)
 import pickle
 # Check accuracy of the currently saved tree
-fileName        = "../models/adaboost_" + labelName + ".bin"
+fileName        = "../models/ridge_kernel_" + labelName + ".bin"
 file            = None
 writeToFile     = False
 try:
