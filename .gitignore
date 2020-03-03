@@ -1,6 +1,9 @@
 # Exclude data
 #python/csvdata/*
 
+# Excel files
+*.xlsm
+
 # Exclude saved models
 #models/*
 
