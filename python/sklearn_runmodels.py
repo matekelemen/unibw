@@ -17,10 +17,13 @@ from unibw import saveModel
 
 # ---------------------------------------------------
 # Setup
-fileName            = "csvdata/Pressure_Time_Curve_Data.csv"
-featureNames        = [ "charge_mass",
-                        "offset"]
-labelName           = "pso_spherical"
+fileName            = "csvdata/data_pressure.csv"
+featureNames        = [ "W",
+                        "L/D",
+                        "theta",
+                        "R"]
+labelNames          = [ "iso", 
+                        "pso" ]
 
 # Data partitioning
 trainRatio          = 0.8
@@ -101,45 +104,56 @@ models["AdaBoost"]      = {
                             "loss"              : "linear" }
                         }
 
+# ---------------------------------------------------
 # Set up multiprocessing
 pool        = mp.Pool( mp.cpu_count() )
 
 # Load data
 dataDict    = loadCSVToDict( fileName )
 
+# Extract dataset name
+dataName    = ( fileName.rfind('/'), fileName.rfind('.') )
+dataName    = fileName[dataName[0]+1:dataName[1]]
+
+# ---------------------------------------------------
 # Run models
-for modelName in models:
-    # Set model name
-    models[modelName]["modelName"] = modelName
-    print(modelName)
-    # Common arguments
-    models[modelName]["dataDict"]           = dataDict
-    models[modelName]["inputFileName"]      = fileName
-    models[modelName]["featureNames"]       = featureNames
-    models[modelName]["labelName"]          = labelName
-    models[modelName]["trainRatio"]         = trainRatio
-    models[modelName]["verbose"]            = verbose
-    models[modelName]["save"]               = saveModels
-    models[modelName]["printPredictions"]   = printPredictions
-    # Train models
-    #for runIndex in range(numberOfRuns):
-    #    runAndEvaluate(**models[modelName])
-    results = [ pool.apply( partial(runAndEvaluate, **models[modelName]) ) for runIndex in range(numberOfRuns) ]
+for labelName in labelNames:
+    for modelName in models:
+        # Set model name
+        models[modelName]["modelName"] = modelName
+        print(modelName)
+        
+        # Common arguments
+        models[modelName]["dataDict"]           = dataDict
+        models[modelName]["inputFileName"]      = fileName
+        models[modelName]["featureNames"]       = featureNames
+        models[modelName]["labelName"]          = labelName
+        models[modelName]["trainRatio"]         = trainRatio
+        models[modelName]["verbose"]            = verbose
+        models[modelName]["save"]               = saveModels
+        models[modelName]["printPredictions"]   = printPredictions
+        
+        # Train models
+        results = [ pool.apply_async( partial(runAndEvaluate, **models[modelName]) ) for runIndex in range(numberOfRuns) ]
 
-    # Find best model
-    model = None
-    bestValue = None
-    for index, candidate in enumerate(results):
-        if model is None:
-            model       = candidate["model"]
-            bestValue   = candidate["R2"]
-        elif candidate["R2"] > bestValue:
-            model       = candidate["model"]
-            bestValue   = candidate["R2"]
+        # Find best model
+        model = None
+        bestValue = None
+        for index, candidate in enumerate(results):
+            candidate = candidate.get()
+            if model is None:
+                model       = candidate["model"]
+                bestValue   = candidate["R2"]
+            elif candidate["R2"] > bestValue:
+                model       = candidate["model"]
+                bestValue   = candidate["R2"]
 
-    # Save best model
-    fileName = "../models/" + modelName + "_" + labelName + ".bin"
-    saveModel( fileName, model )
+        # Save best model
+        fileName = "../models/" + dataName + "_" + modelName + "_" + labelName + ".bin"
+        saveModel( fileName, model )
 
-    # Print best result
-    print( "Best " + modelName + " R2\t: " + str(bestValue) )
+        # Print best result
+        print( "Best " + modelName + " R2\t: " + str(bestValue) )
+
+# Terminate
+pool.close()
