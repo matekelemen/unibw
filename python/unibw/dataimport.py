@@ -48,6 +48,16 @@ def loadCSVToDict(fileName):
     return data
 
 
+def loadDataFromDict( dataDictionary, featureNames, labelNames ):
+    '''
+    '''
+    # Collect data
+    features    = np.asarray([ dataDictionary[name] for name in featureNames ])
+    labels      = np.asarray([ dataDictionary[name] for name in labelNames ])
+
+    return features, labels
+
+
 def loadCSVData( fileName, featureNames, labelNames ):
     '''
     Argument types:
@@ -60,13 +70,8 @@ def loadCSVData( fileName, featureNames, labelNames ):
         - labels        : numpy.ndarray (PxN)
     '''
     # Read and divide data
-    data        = loadCSVToDict(fileName)
-    features    = [ data[name] for name in featureNames ]
-    labels      = [ data[name] for name in labelNames ]
-
-    # Convert to ndarrays
-    features    = np.asarray( features )
-    labels      = np.asarray( labels )
+    data                = loadCSVToDict(fileName)
+    features, labels    = loadDataFromDict( data, featureNames, labelNames )
 
     return features, labels
 
