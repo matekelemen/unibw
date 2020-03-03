@@ -17,7 +17,7 @@ from unibw import normalizeData, deNormalizeData
 
 # ---------------------------------------------------
 # Data settings
-filename        = "csvdata/data_pressure.csv"
+fileName        = "csvdata/data_pressure.csv"
 featureNames    = [ "W",
                     "L/D",
                     "theta",
@@ -29,7 +29,7 @@ printTestSet    = True
 showPlots       = True
 
 # Model settings
-numberOfNodes   = [ 72 for i in range(10) ]
+numberOfNodes   = [ 200 for i in range(3) ]
 
 # Optimization settings
 numberOfEpochs  = 150
@@ -37,7 +37,7 @@ optimizer       = 'adam'
 
 # ---------------------------------------------------
 # Load data
-features, labels    = loadCSVData(filename, featureNames, labelNames )
+features, labels    = loadCSVData(fileName, featureNames, labelNames )
 
 # ---------------------------------------------------
 # Normalize data
@@ -78,18 +78,24 @@ model   = tf.keras.models.Sequential()
 model.add( tf.keras.layers.InputLayer( input_shape=(len(featureNames)) ) )
 for num in numberOfNodes:
     model.add( tf.keras.layers.Dense(num, activation='relu') )
+
+model.add( tf.keras.layers.Dropout( 0.2 ) )
 model.add( tf.keras.layers.Dense(len(labelNames)) )
 
 # Set optimizer
 model.compile(  optimizer=optimizer,
-                loss='mse',
-                metrics=['mse','mae'])
+                loss='mean_squared_error')
 
 # Display model structure
 model.summary()
 
 # Train network
-model.fit(trainFeatures, trainLabels, epochs=numberOfEpochs)
+model.fit(  trainFeatures, 
+            trainLabels, 
+            epochs=numberOfEpochs,
+            shuffle=False,
+            use_multiprocessing=True,
+            workers=6)
 
 # Evaluate network
 print("\nEVALUATION")
@@ -145,7 +151,8 @@ if printTestSet:
         print( string )
 
 # Compute R2
-print( "R2:\t" + str( R2(testLabels, y) ) + "\n" )
+print( "R2 (train):\t" + str( R2(trainLabels, model.predict(trainFeatures) ) ) )
+print( "R2 (test):\t" + str( R2(testLabels, y) ) + "\n" )
 
 if showPlots:
     for targetIndex in range(len(labelNames)):

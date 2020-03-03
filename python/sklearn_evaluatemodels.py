@@ -14,7 +14,7 @@ featureNames        = [ "W",
                         "L/D",
                         "theta",
                         "R"]
-labelName           = "pso"
+labelName           = "iso"
 
 # ---------------------------------------------------
 # Load and divide data

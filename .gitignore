@@ -1,8 +1,8 @@
 # Exclude data
-python/csvdata/*
+#python/csvdata/*
 
 # Exclude saved models
-models/*
+#models/*
 
 # Exclude precomplied python files
 __pycache__

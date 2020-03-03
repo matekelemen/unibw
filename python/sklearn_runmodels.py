@@ -16,7 +16,7 @@ featureNames        = [ "W",
                         "L/D",
                         "theta",
                         "R"]
-labelName           = "pso"
+labelName           = "iso"
 
 # Data partitioning
 trainRatio          = 0.8
