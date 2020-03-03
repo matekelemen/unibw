@@ -2,7 +2,7 @@
 #python/csvdata/*
 
 # Excel files
-.xlsm
+*.xls*
 
 # Exclude saved models
 #models/*
