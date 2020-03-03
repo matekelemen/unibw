@@ -4,6 +4,9 @@
 # Excel files
 *.xls*
 
+# Binary files
+*.bin*
+
 # Exclude saved models
 #models/*
 
