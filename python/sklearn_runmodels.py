@@ -17,11 +17,10 @@ from unibw import saveModel
 
 # ---------------------------------------------------
 # Setup
-fileName            = "csvdata/data_pressure.csv"
-featureNames        = [ "W",
-                        "L/D",
-                        "theta",
-                        "R"]
+fileName            = "csvdata/bayer_3_4_6_7_8_10_11.csv"
+featureNames        = [ "charge_mass",
+                        "range",
+                        "elevation"]
 labelNames          = [ "iso", 
                         "pso" ]
 

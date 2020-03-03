@@ -9,11 +9,10 @@ from unibw import R2
 from unibw import loadCSVData, partitionDataSets
 
 # ---------------------------------------------------
-fileName            = "csvdata/data_pressure.csv"
-featureNames        = [ "W",
-                        "L/D",
-                        "theta",
-                        "R"]
+fileName            = "csvdata/bayer_3_4_6_7_8_10_11.csv"
+featureNames        = [ "charge_mass",
+                        "range",
+                        "elevation"]
 labelNames          = [ "iso", 
                         "pso" ]
 
@@ -35,12 +34,13 @@ for labelName in labelNames:
     # ---------------------------------------------------
     # Collect model names
     modelPath       = "../models/"
-    nameCriterion   = dataName + "_" + labelName + ".bin"
+    dataCriterion   = dataName + "_"
+    nameCriterion   = "_" + labelName + ".bin"
 
-    modelNames = [ fileName for fileName in os.listdir(modelPath) if os.path.isfile(os.path.join(modelPath,fileName)) and labelName in fileName ]
+    modelNames = [ fileName for fileName in os.listdir(modelPath) if os.path.isfile(os.path.join(modelPath,fileName)) and nameCriterion in fileName and dataCriterion in fileName ]
 
     # ---------------------------------------------------
-    print( "\nLabel name\t: " + labelName )
+    print( "\nLabel name: " + labelName )
     print( "Model Name\t\tR2 (entire set)" )
     print( "---------------------------------------" )
     # Loop through models and evaluate them
@@ -54,9 +54,9 @@ for labelName in labelNames:
             r2          = R2(labels, prediction)
 
         separator = "\t\t"
-        if len(name) - len(nameCriterion) < 8:
+        if len(name) - len(nameCriterion) - len(dataCriterion) < 8:
             separator += "\t"
 
-        print( name[:-len(nameCriterion)] + separator + "%.3f" % r2 )
+        print( name[len(dataCriterion):-len(nameCriterion)] + separator + "%.4f" % r2 )
 
     print("\n")
