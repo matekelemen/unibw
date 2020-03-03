@@ -28,145 +28,84 @@ printPredictions    = False
 numberOfRuns        = 10
 
 # ---------------------------------------------------
-# Set up models and their arguments
+# Set up the models and their arguments
 models = dict()
 
 models["Linear"]        = {
     "model"             : LinearRegression,
-    "modelName"         : "Linear",
     "modelArguments"    : { "fit_intercept" : True,
-                            "normalize"     : True  },
-    "inputFileName"     : fileName,
-    "featureNames"      : featureNames,
-    "labelName"         : labelName,
-    "trainRatio"        : trainRatio,
-    "verbose"           : verbose,
-    "save"              : saveModels,
-    "printPredictions"  : printPredictions
-}
+                            "normalize"     : True  }
+                        }
 
 models["Ridge"]         = {
     "model"             : Ridge,
-    "modelName"         : "Ridge",
     "modelArguments"    : { "fit_intercept" : True,
                             "normalize"     : True,
-                            "alpha"         : 1.0  },
-    "inputFileName"     : fileName,
-    "featureNames"      : featureNames,
-    "labelName"         : labelName,
-    "trainRatio"        : trainRatio,
-    "verbose"           : verbose,
-    "save"              : saveModels,
-    "printPredictions"  : printPredictions
-}
+                            "alpha"         : 1.0  }
+                        }
 
 models["SVR"]           = {
     "model"             : SVR,
-    "modelName"         : "SVR",
     "modelArguments"    : { "kernel" : "poly",
-                            "degree"     : 3    },
-    "inputFileName"     : fileName,
-    "featureNames"      : featureNames,
-    "labelName"         : labelName,
-    "trainRatio"        : trainRatio,
-    "verbose"           : verbose,
-    "save"              : saveModels,
-    "printPredictions"  : printPredictions
-}
+                            "degree"     : 3    }
+                        }
 
 models["KernelRidge"]   = {
     "model"             : KernelRidge,
-    "modelName"         : "KernelRidge",
     "modelArguments"    : { "kernel"    : "linear",
                             "degree"    : 3,
                             "alpha"     : 1.0,
-                            "coef0"     : None  },
-    "inputFileName"     : fileName,
-    "featureNames"      : featureNames,
-    "labelName"         : labelName,
-    "trainRatio"        : trainRatio,
-    "verbose"           : verbose,
-    "save"              : saveModels,
-    "printPredictions"  : printPredictions
-}
+                            "coef0"     : None  }
+                        }
 
 models["DecisionTree"]  = {
     "model"             : DecisionTreeRegressor,
-    "modelName"         : "DecisionTree",
-    "modelArguments"    : { "max_depth" : None },
-    "inputFileName"     : fileName,
-    "featureNames"      : featureNames,
-    "labelName"         : labelName,
-    "trainRatio"        : trainRatio,
-    "verbose"           : verbose,
-    "save"              : saveModels,
-    "printPredictions"  : printPredictions
-}
+    "modelArguments"    : { "max_depth" : None }
+                        }
 
 models["Bagging"]       = {
     "model"             : BaggingRegressor,
-    "modelName"         : "Bagging",
     "modelArguments"    : { "base_estimator"    : None,
-                            "n_estimators"      : 100 },
-    "inputFileName"     : fileName,
-    "featureNames"      : featureNames,
-    "labelName"         : labelName,
-    "trainRatio"        : trainRatio,
-    "verbose"           : verbose,
-    "save"              : saveModels,
-    "printPredictions"  : printPredictions
-}
+                            "n_estimators"      : 100 }
+                        }
 
 models["RandomForest"]  = {
     "model"             : RandomForestRegressor,
-    "modelName"         : "RandomForest",
     "modelArguments"    : { "max_depth"         : None,
                             "n_estimators"      : 100,
                             "criterion"         : "mse",
                             "min_samples_split" : 2,
                             "min_samples_leaf"  : 1,
-                            "max_features"      : "auto" },
-    "inputFileName"     : fileName,
-    "featureNames"      : featureNames,
-    "labelName"         : labelName,
-    "trainRatio"        : trainRatio,
-    "verbose"           : verbose,
-    "save"              : saveModels,
-    "printPredictions"  : printPredictions
-}
+                            "max_features"      : "auto" }
+                        }
 
 models["GradientBoost"] = {
     "model"             : GradientBoostingRegressor,
-    "modelName"         : "GradientBoost",
     "modelArguments"    : { "max_depth"         : 3,
                             "n_estimators"      : 100,
                             "criterion"         : "friedman_mse",
                             "loss"              : "ls",
-                            "subsample"         : 1.0  },
-    "inputFileName"     : fileName,
-    "featureNames"      : featureNames,
-    "labelName"         : labelName,
-    "trainRatio"        : trainRatio,
-    "verbose"           : verbose,
-    "save"              : saveModels,
-    "printPredictions"  : printPredictions
-}
+                            "subsample"         : 1.0  }
+                        }
 
 models["AdaBoost"]      = {
     "model"             : AdaBoostRegressor,
-    "modelName"         : "AdaBoost",
     "modelArguments"    : { "base_estimator"    : DecisionTreeRegressor(max_depth=None),
                             "n_estimators"      : 100,
-                            "loss"              : "linear" },
-    "inputFileName"     : fileName,
-    "featureNames"      : featureNames,
-    "labelName"         : labelName,
-    "trainRatio"        : trainRatio,
-    "verbose"           : verbose,
-    "save"              : saveModels,
-    "printPredictions"  : printPredictions
-}
+                            "loss"              : "linear" }
+                        }
 
 for modelName in models:
+    # Set model name
+    models[modelName]["modelName"] = modelName
+    # Common arguments
+    models[modelName]["inputFileName"]      = fileName
+    models[modelName]["featureNames"]       = featureNames
+    models[modelName]["labelName"]          = labelName
+    models[modelName]["trainRatio"]         = trainRatio
+    models[modelName]["verbose"]            = verbose
+    models[modelName]["save"]               = saveModels
+    models[modelName]["printPredictions"]   = printPredictions
+    # Train model
     for runIndex in range(numberOfRuns):
         runAndEvaluate(**models[modelName])
