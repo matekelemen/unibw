@@ -9,12 +9,10 @@ from unibw import R2
 from unibw import loadCSVData, partitionDataSets
 
 # ---------------------------------------------------
-filename            = "csvdata/data_pressure.csv"
-featureNames        = [ "W",
-                        "L/D",
-                        "theta",
-                        "R"]
-labelName           = "iso"
+filename            = "csvdata/Pressure_Time_Curve_Data.csv"
+featureNames        = [ "charge_mass",
+                        "offset"]
+labelName           = "pso_spherical"
 
 # ---------------------------------------------------
 # Load and divide data

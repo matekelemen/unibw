@@ -11,12 +11,10 @@ from unibw import runAndEvaluate
 
 # ---------------------------------------------------
 # Setup
-fileName            = "csvdata/data_pressure.csv"
-featureNames        = [ "W",
-                        "L/D",
-                        "theta",
-                        "R"]
-labelName           = "iso"
+fileName            = "csvdata/Pressure_Time_Curve_Data.csv"
+featureNames        = [ "charge_mass",
+                        "offset"]
+labelName           = "pso_spherical"
 
 # Data partitioning
 trainRatio          = 0.8
@@ -27,7 +25,7 @@ saveModels          = True
 printPredictions    = False
 
 # Number of runs per model
-numberOfRuns        = 100
+numberOfRuns        = 10
 
 # ---------------------------------------------------
 # Set up models and their arguments
