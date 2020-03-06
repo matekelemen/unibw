@@ -9,12 +9,13 @@ from unibw import R2
 from unibw import loadCSVData, partitionDataSets
 
 # ---------------------------------------------------
-fileName            = "csvdata/bayer_3_4_6_7_8_10_11.csv"
+fileName            = "csvdata/Pressure_Time_Curve_Data.csv"
 featureNames        = [ "charge_mass",
-                        "range",
-                        "elevation"]
-labelNames          = [ "iso", 
-                        "pso" ]
+                        "offset"]
+labelNames          = [ "pso_spherical", 
+                        "is_spherical",
+                        "pso_hemispherical", 
+                        "is_hemispherical" ]
 
 # ---------------------------------------------------
 
